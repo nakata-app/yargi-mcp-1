@@ -40,9 +40,7 @@ class BddkApiClient:
         """Initialize the BDDK API client."""
         self.tavily_api_key = os.getenv("TAVILY_API_KEY")
         if not self.tavily_api_key:
-            # Fallback to development token
-            self.tavily_api_key = "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"
-            logger.info("Using fallback Tavily API token (development token)")
+            logger.warning("TAVILY_API_KEY not set; Tavily search disabled")
         else:
             logger.info("Using Tavily API key from environment variable")
         
@@ -92,6 +90,9 @@ class BddkApiClient:
         Returns:
             BddkSearchResult with matching decisions
         """
+        if not self.tavily_api_key:
+            logger.error("TAVILY_API_KEY not set; cannot search")
+            return BddkSearchResult(decisions=[], total_results=0)
         try:
             headers = {
                 "Content-Type": "application/json",
